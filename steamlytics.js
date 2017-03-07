@@ -5,6 +5,7 @@ var Promise = require('bluebird');
 
 function getJSON(url, callback) {
 	request(url, function(err, resp, data) {
+
 		if(!resp.headers) 
 			return callback("invalid_response");
 		
@@ -25,7 +26,7 @@ function getJSON(url, callback) {
 /**
  * Constructs a new Steamlytics object used to interact with the Steamlytics API. A test call is made when the object is constructed.
  * @param {string} apiKey The API key used in order to make calls to the Steamlytics API.
- * @param {function(Steamlytics, {api_plan:number, subscription_ends_at:number, calls_this_minute:number, calls_today:number}, SteamlyticsError)} readyCallback Callback is run when test call is complete and api is ready to be used, the argument is the api object.
+ * @param {function(Steamlytics, {api_plan:number, subscription_ends_at:number, calls_this_minute:number, calls_today:number})} readyCallback Callback is run when test call is complete and api is ready to be used, the argument is the api object.
  */
 function Steamlytics(apiKey, readyCallback) {
 	this.apiKey = apiKey;
@@ -76,6 +77,8 @@ function Steamlytics(apiKey, readyCallback) {
 
 
 			getJSON(`http://api.csgo.steamlytics.xyz/v2/pricelist?key=${this.apiKey}${currencyURL}`, (data) => {
+
+
 				if(data.success) {
 					resolve(data.items);
 					return callback(null, data.items);
@@ -85,6 +88,8 @@ function Steamlytics(apiKey, readyCallback) {
 				reject(error);
 				return callback(error, []);
 			});
+		}).catch(function(e) {
+			console.log("error: "+e.message)
 		});
 	}
 
@@ -135,7 +140,9 @@ function Steamlytics(apiKey, readyCallback) {
 				reject(error);
 				callback(error, {});
 			});
-		})
+		}).catch(function(e) {
+            console.log("error: "+e.message)
+        });
 	}
 	/**
 	 * Gets a list of all items currently tracked in the Steamlytics database.
@@ -155,7 +162,9 @@ function Steamlytics(apiKey, readyCallback) {
 				reject(error);
 				return callback(error, {num_items: 0, items: []});
 			});
-		});
+		}).catch(function(e) {
+            console.log("error: "+e.message)
+        });
 	}
 	/**
 	 * Gets the current list of popular items
@@ -180,7 +189,9 @@ function Steamlytics(apiKey, readyCallback) {
 				reject(error);
 				return callback(error, []);
 			});
-		});
+		}).catch(function(e) {
+            console.log("error: "+e.message)
+        });
 	}
 
 	this.csgo = csgo;
@@ -250,7 +261,9 @@ function Steamlytics(apiKey, readyCallback) {
 				reject(error);
 				return callback(error, {});
 			});
-		});
+		}).catch(function(e) {
+            console.log("error: "+e.message)
+        });
 	}
 
 	/**
@@ -312,7 +325,9 @@ function Steamlytics(apiKey, readyCallback) {
 				reject(error);
 				return callback(error, {});
 			});
-		});
+		}).catch(function(e) {
+            console.log("error: "+e.message)
+        });
 	}
 
 	/**
@@ -340,16 +355,16 @@ function Steamlytics(apiKey, readyCallback) {
 				reject(new SteamlyticsError(data.message));
 				return callback(new SteamlyticsError(data.message), {});
 			})
-		});
+		}).catch(function(e) {
+            console.log("error: "+e.message)
+        });
 		
 	}
 	this.steam = steam;
 
 	csgo.account((err, data) => {
-		if(err) {
-			readyCallback(null, null, err);
-			return;
-		}
+		if(err)
+			throw err;
 			
 		this.apiLevel = data.api_plan;
 		this.ready = true;
